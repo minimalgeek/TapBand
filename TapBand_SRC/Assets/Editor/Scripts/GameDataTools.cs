@@ -4,6 +4,9 @@ using System.IO;
 using System.Collections;
 using System.Net;
 
+
+
+
 [ExecuteInEditMode]
 public class GameDataTools : EditorWindow 
 {
@@ -66,11 +69,29 @@ public class GameDataTools : EditorWindow
 		
 		if (GUILayout.Button("Download"))
 		{
+			System.Net.ServicePointManager.ServerCertificateValidationCallback =((sender, certificate, chain, sslPolicyErrors) => true);
             using (var client = new WebClient())
             {
-                client.DownloadFile(sourceURL, gameDataDownloadFileName);
+				ConvertURL();
+				client.DownloadFile(sourceURL,  dataRawPath+gameDataDownloadFileName);
             }
         }
+	}
+
+	//works only with sharable link from google drive
+	private void ConvertURL()
+	{
+
+		if (sourceURL.Contains ("drive.google"))
+		{
+			var valueArray = sourceURL.Split('/');
+			sourceURL="https://drive.google.com/uc?export=download&id="+valueArray[5];
+		}
+		//else if (sourceURL.Contains ("dropbox"))
+		//{
+		//	
+		//} 
+
 	}
 
 	private void ConvertToResourceFileGUI()
@@ -128,4 +149,8 @@ public class GameDataTools : EditorWindow
 	{
 		return null;
 	}
+
+
+
+
 }	
