@@ -81,6 +81,10 @@ public class SongController : MonoBehaviour {
 
             if (currentSong.tapGoal < actualTapAmount)
             {
+				if( GiveEndOfSong != null)
+				{
+					GiveEndOfSong(currentSong);
+				}
                 ResetCountStates();
                 currentSong = GiveNextSong();
             }
