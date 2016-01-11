@@ -10,6 +10,9 @@ public class SongController : MonoBehaviour {
 	public delegate void GiveEndOfSongEvent(SongData songData);
 	public event GiveEndOfSongEvent GiveEndOfSong;
 
+	public delegate void GiveRewardOfSongEvent(int coinReward);
+	public event GiveRewardOfSongEvent GiveRewardOfSong;
+
     private TapController tapController;
     private TourController tourController;
     private HudUI hudUI;
@@ -29,18 +32,18 @@ public class SongController : MonoBehaviour {
     {
         tapController.OnTap += IncomingTapStrength;
         tourController.RestartSong += ResetControllerState;
-        hudUI.NewSong += GetSongName;
         hudUI.TapPassed += TapPassed;
         hudUI.TimePassed += TimePassed;
+		hudUI.newSongData += GetSongData;
     }
 
     void OnDisable()
     {
         tapController.OnTap -= IncomingTapStrength;
         tourController.RestartSong -= ResetControllerState;
-        hudUI.NewSong -= GetSongName;
         hudUI.TapPassed -= TapPassed;
         hudUI.TimePassed -= TimePassed;
+		hudUI.newSongData -= GetSongData;
     }
 
     void Update()
@@ -89,6 +92,10 @@ public class SongController : MonoBehaviour {
 				{
 					GiveEndOfSong(currentSong);
 				}
+				if(GiveRewardOfSong != null)
+				{
+					GiveRewardOfSong(currentSong.coinReward);
+				}
                 ResetControllerState();
                 currentSong = GiveNextSong();
             }
@@ -99,6 +106,11 @@ public class SongController : MonoBehaviour {
     {
         return currentSong == null ? "" : currentSong.title;
     }
+
+	private SongData GetSongData()
+	{
+		return currentSong;
+	}
 
     private void ResetControllerState()
     {
