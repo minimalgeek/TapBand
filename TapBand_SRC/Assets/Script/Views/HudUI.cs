@@ -7,7 +7,7 @@ public class HudUI : MonoBehaviour {
     public float heightOfBar;
     public float startingVerticalPos;
 
-    public delegate string NewTourEvent();
+    public delegate TourData NewTourEvent();
     public event NewTourEvent NewTour;
 
     public delegate string NewCoinEvent();
@@ -46,7 +46,7 @@ public class HudUI : MonoBehaviour {
     {
         if (NewTour != null) 
 		{
-            tour.GetComponent<Text>().text = "Tour: " + NewTour();
+            tour.GetComponent<Text>().text = "Tour: " + NewTour().level;
         }
         if (NewCoin != null)
         {
@@ -63,7 +63,10 @@ public class HudUI : MonoBehaviour {
 		if (newSongData != null) 
 		{
 			actualSongData = newSongData();
-			song.GetComponent<Text>().text = actualSongData.title;
+            if (actualSongData != null)
+            {
+                song.GetComponent<Text>().text = actualSongData.title;
+            }
 		}
 
 
