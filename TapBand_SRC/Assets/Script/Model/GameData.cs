@@ -24,6 +24,14 @@ public class GameData : LoadableData
             return _instance;
         }
     }
+    
+    // TODO: solve its protection level issues in RawGameDataLoader
+    /*
+    private GameData()
+    {
+
+    }
+    */
     #endregion
 
     private List<SongData> songDataList;
@@ -109,6 +117,19 @@ public class GameData : LoadableData
         {
             generalDataList = value;
         }
+    }
+
+    public GeneralData FindGeneralDataByName(string name)
+    {
+        foreach (GeneralData data in generalDataList)
+        {
+            if (data.name == name)
+            {
+                return data;
+            }
+        }
+
+        return null;
     }
 
     #region Overridden functions for loading/saving

@@ -7,20 +7,20 @@ public class HudUI : MonoBehaviour {
     public float heightOfBar;
     public float startingVerticalPos;
 
-    public delegate string NewTourEvent();
+    public delegate TourData NewTourEvent();
     public event NewTourEvent NewTour;
 
-    public delegate void NewCoinEvent();
+    public delegate string NewCoinEvent();
     public event NewCoinEvent NewCoin;
 
-    public delegate void NewFansEvent();
+    public delegate string NewFansEvent();
     public event NewFansEvent NewFans;
 
 	public delegate string NewConcertEvent();
 	public event NewConcertEvent NewConcert;
 
-	public delegate string NewSongEvent();
-	public event NewSongEvent NewSong;
+	public delegate SongData NewSongDataEvent();
+	public event NewSongDataEvent newSongData;
 
     public delegate float ProcessEvent();
     public event ProcessEvent TimePassed;
@@ -31,6 +31,8 @@ public class HudUI : MonoBehaviour {
     public GameObject tour;
 	public GameObject concert;
 	public GameObject song;
+
+	private SongData actualSongData;
     
     void Start () {
         coin = GameObject.Find("CoinText");
@@ -44,23 +46,27 @@ public class HudUI : MonoBehaviour {
     {
         if (NewTour != null) 
 		{
-            tour.GetComponent<Text>().text = "Tour: " + NewTour();
+            tour.GetComponent<Text>().text = "Tour: " + NewTour().level;
         }
         if (NewCoin != null)
         {
-            NewCoin();
+            coin.GetComponent<Text>().text = NewCoin();
         }
         if (NewFans != null)
         {
-            NewFans();
+            fan.GetComponent<Text>().text = NewFans();
         }
 		if( NewConcert != null)
 		{
 			concert.GetComponent<Text>().text = NewConcert();
 		}
-		if( NewSong != null)
+		if (newSongData != null) 
 		{
-			song.GetComponent<Text>().text = NewSong();
+			actualSongData = newSongData();
+            if (actualSongData != null)
+            {
+                song.GetComponent<Text>().text = actualSongData.title;
+            }
 		}
 
 
@@ -71,9 +77,9 @@ public class HudUI : MonoBehaviour {
             GUI.color = Color.yellow;
             GUI.Box(
                 new Rect(
-                    Screen.width / 4,
+                    Screen.width / 4-25f,
                     startingVerticalPos,
-                    TapPassed() * 5 + 50f,
+					(TapPassed()/actualSongData.tapGoal)*(Screen.width/2)+50f,
                     heightOfBar), "Tap");
         }
 
@@ -82,9 +88,9 @@ public class HudUI : MonoBehaviour {
             GUI.color = Color.red;
             GUI.Box(
                 new Rect(
-                    Screen.width / 4,
+                    Screen.width / 4-25f,
                     startingVerticalPos + heightOfBar + 5f,
-                    TimePassed() * 5 + 50f,
+					(TimePassed() * 5 /actualSongData.tapGoal)*(Screen.width/2)+50f,
                     heightOfBar), "Time");
         }
     }

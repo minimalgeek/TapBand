@@ -7,7 +7,14 @@ public class SongController : MonoBehaviour {
     public event GiveNextSongEvent GiveNextSong;
     public event GiveNextSongEvent GiveFirstSongOfActualConcert;
 
+	public delegate void GiveEndOfSongEvent(SongData songData);
+	public event GiveEndOfSongEvent GiveEndOfSong;
+
+	public delegate void GiveRewardOfSongEvent(int coinReward);
+	public event GiveRewardOfSongEvent GiveRewardOfSong;
+
     private TapController tapController;
+    private TourController tourController;
     private HudUI hudUI;
     private SongData currentSong;
 
@@ -18,22 +25,25 @@ public class SongController : MonoBehaviour {
     {
         hudUI = (HudUI)FindObjectOfType(typeof(HudUI));
         tapController = (TapController)FindObjectOfType(typeof(TapController));
+        tourController = (TourController)FindObjectOfType(typeof(TourController));
     }
 
     void OnEnable()
     {
         tapController.OnTap += IncomingTapStrength;
-        hudUI.NewSong += GetSongName;
+        tourController.RestartSong += ResetControllerState;
         hudUI.TapPassed += TapPassed;
         hudUI.TimePassed += TimePassed;
+		hudUI.newSongData += GetSongData;
     }
 
     void OnDisable()
     {
         tapController.OnTap -= IncomingTapStrength;
-        hudUI.NewSong -= GetSongName;
+        tourController.RestartSong -= ResetControllerState;
         hudUI.TapPassed -= TapPassed;
         hudUI.TimePassed -= TimePassed;
+		hudUI.newSongData -= GetSongData;
     }
 
     void Update()
@@ -54,8 +64,7 @@ public class SongController : MonoBehaviour {
 
             if (bossBattleCountDown > currentSong.duration)
             {
-                actualTapAmount = 0f;
-                bossBattleCountDown = 0f;
+                ResetControllerState();
                 currentSong = GiveFirstSongOfActualConcert();
             }
         }
@@ -79,9 +88,16 @@ public class SongController : MonoBehaviour {
 
             if (currentSong.tapGoal < actualTapAmount)
             {
+				if(GiveEndOfSong != null)
+				{
+					GiveEndOfSong(currentSong);
+				}
+				if(GiveRewardOfSong != null)
+				{
+					GiveRewardOfSong(currentSong.coinReward);
+				}
+                ResetControllerState();
                 currentSong = GiveNextSong();
-                actualTapAmount = 0f;
-                bossBattleCountDown = 0f;
             }
         }
     }
@@ -89,5 +105,17 @@ public class SongController : MonoBehaviour {
     private string GetSongName()
     {
         return currentSong == null ? "" : currentSong.title;
+    }
+
+	private SongData GetSongData()
+	{
+		return currentSong;
+	}
+
+    private void ResetControllerState()
+    {
+        actualTapAmount = 0f;
+        bossBattleCountDown = 0f;
+        currentSong = null;
     }
 }
