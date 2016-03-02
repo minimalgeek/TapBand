@@ -4,40 +4,55 @@ using System.Collections;
 
 public class SpotlightUI : MonoBehaviour {
 
-    public GameObject[] spotLights;
+    [System.NonSerialized]
+    public float aliveTime;
 
-    private float initAliveTime;
+    private GameObject[] spotlights;
+    private float passedTime;
+    private bool isActive;
+
+    public GameObject particleEmitterPrefab;
     
 	void Start () {
+        spotlights = GameObject.FindGameObjectsWithTag(Tags.SPOTLIGHT);
         DeactivateAll();
-        initAliveTime = 0f;
+        passedTime = 0f;
+        isActive = false;
     }
 	
 	void Update () {
-	    if (initAliveTime <= 0)
+        if (isActive)
         {
-            DeactivateAll();
-        } else
-        {
-            initAliveTime -= Time.deltaTime;
+            if (passedTime <= 0)
+            {
+                isActive = false;
+                DeactivateAll();
+                GameObject inst = (GameObject)Instantiate(particleEmitterPrefab, Vector2.zero, Quaternion.identity);
+                Destroy(inst, 3);
+            }
+            else
+            {
+                passedTime -= Time.deltaTime;
+            }
         }
 	}
 
     public void DeactivateAll()
     {
-        foreach(GameObject obj in spotLights) {
+        foreach(GameObject obj in spotlights) {
             obj.SetActive(false);
         }
     }
     
-    public void Activate(GameObject musician, float aliveTime)
+    public void Activate(GameObject musician)
     {
-        foreach (GameObject obj in spotLights)
+        foreach (GameObject obj in spotlights)
         {
             if (musician.name == obj.name)
             {
+                isActive = true;
                 obj.SetActive(true);
-                initAliveTime = aliveTime;
+                passedTime = aliveTime;
             } else
             {
                 obj.SetActive(false);
