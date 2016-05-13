@@ -13,17 +13,34 @@ public class DroneCaller : MonoBehaviour {
     // Use this for initialization
     void Start () {
         print("Elindultam");
-        deltaTime = Random.Range(3, 7);
+        deltaTime = Random.Range(2, 4);
+
+
+
+
         StartCoroutine(waitSomeSeconds());
+
+        //Instantiate(Drone, transform.position, transform.rotation);
     }
 	
 
     IEnumerator waitSomeSeconds()
     {
-        yield return new WaitForSeconds(deltaTime);
-        print("Folytatom");
-        yield return new WaitForSeconds(3);
-        yield return 0;
+        while(true)
+        {
+                yield return new WaitForSeconds(deltaTime);
+                //print("Folytatom");
+                //yield return new WaitForSeconds(3);
+                Drone.SetActive(true);
+                yield return new WaitForSeconds(5);
+
+        }
+
+        //yield return new WaitForSeconds(deltaTime);
+        //print("Folytatom");
+        //yield return new WaitForSeconds(3);
+        //Drone.SetActive(true);
+        //gameObject.SetActive(true);
         //Application.Quit();
     }
 	// Update is called once per frame
