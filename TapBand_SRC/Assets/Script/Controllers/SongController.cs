@@ -20,6 +20,8 @@ public class SongController : MonoBehaviour {
 
     private float actualTapAmount = 0f;
     private float bossBattleCountDown = 0f;
+	private float bossBattleCountDownBooster = 0f;
+	private bool extraTimeBoosterIsActive = false;
 
     void Awake()
     {
@@ -61,6 +63,10 @@ public class SongController : MonoBehaviour {
         if (currentSong.bossBattle)
         {
             bossBattleCountDown += deltaTime;
+			if (extraTimeBoosterIsActive) {
+				bossBattleCountDown -= bossBattleCountDownBooster;
+				extraTimeBoosterIsActive = false;
+			}
 
             if (bossBattleCountDown > currentSong.duration)
             {
@@ -118,4 +124,15 @@ public class SongController : MonoBehaviour {
         bossBattleCountDown = 0f;
         currentSong = null;
     }
+
+    //ATMENETI!!!!!!!!!!!!!!
+    public int GetSongID()
+    {
+        return currentSong.id;
+    }
+
+	public void BossExtratime(float extraTime){
+		bossBattleCountDownBooster = extraTime;
+		extraTimeBoosterIsActive = true;
+	}
 }

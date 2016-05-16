@@ -1,44 +1,75 @@
 ﻿using UnityEngine;
 using System.Collections;
+using QuickPool;
 
+public class SpotlightUI : MonoBehaviour
+{
 
-public class SpotlightUI : MonoBehaviour {
+    [System.NonSerialized]
+    public float aliveTime;
 
-    public GameObject[] spotLights;
+    private GameObject[] spotlights;
+    private float passedTime;
+    private bool isActive;
+    private Pool spotlightEmitterPool;
+    private GameObject lastEmitter;
 
-    private float initAliveTime;
-    
-	void Start () {
+    void Start()
+    {
+        spotlightEmitterPool = PoolsManager.Instance["SpotlightParticleEmitter"];
+        lastEmitter = null;
+        spotlights = GameObject.FindGameObjectsWithTag(Tags.SPOTLIGHT);
         DeactivateAll();
-        initAliveTime = 0f;
+        passedTime = 0f;
+        isActive = false;
     }
-	
-	void Update () {
-	    if (initAliveTime <= 0)
+
+    void OnDisable()
+    {
+        spotlightEmitterPool.DespawnAll();
+    }
+
+    void Update()
+    {
+        if (isActive)
         {
-            DeactivateAll();
-        } else
-        {
-            initAliveTime -= Time.deltaTime;
+            if (passedTime <= 0)
+            {
+                isActive = false;
+                DeactivateAll();
+
+                if (lastEmitter != null)
+                {
+                    spotlightEmitterPool.Despawn(lastEmitter);
+                }
+                lastEmitter = spotlightEmitterPool.Spawn(Vector3.zero, Quaternion.identity);
+            }
+            else
+            {
+                passedTime -= Time.deltaTime;
+            }
         }
-	}
+    }
 
     public void DeactivateAll()
     {
-        foreach(GameObject obj in spotLights) {
+        foreach (GameObject obj in spotlights)
+        {
             obj.SetActive(false);
         }
     }
-    
-    public void Activate(GameObject musician, float aliveTime)
+
+    public void Activate(GameObject musician)
     {
-        foreach (GameObject obj in spotLights)
+        foreach (GameObject obj in spotlights)
         {
             if (musician.name == obj.name)
             {
+                isActive = true;
                 obj.SetActive(true);
-                initAliveTime = aliveTime;
-            } else
+                passedTime = aliveTime;
+            }
+            else
             {
                 obj.SetActive(false);
             }
